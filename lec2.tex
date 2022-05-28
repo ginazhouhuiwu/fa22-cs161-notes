@@ -1,0 +1,169 @@
+\chapter{x86 Assembly and Calling Convention}
+
+This section reviews relevant concepts from CS61C and introduces x86 assembly.
+
+\section{Number representation}
+Computers store all data as bits (0 or 1). Recall the following units of measurement:
+\begin{itemize}
+    \item 1 \emph{nibble} = 4 bits
+    \item 1 \emph{byte} = 8 bits
+    \item 1 \emph{word} = 32 bits
+\end{itemize}
+\emph{Note}: This class uses 32-bit architectures.
+
+\section{CALL}
+There are four main steps to running a C program:
+\begin{enumerate}
+    \item \emph{Compiler} converts a high-level language file into assembly instructions. 61C uses RISC-V while 161 uses x86.
+    \item \emph{Assembler} translates assembly instructions from the compiler into machine code (raw bits).
+    \item \emph{Linker} resolves dependencies on external libraries and outputs a binary executable. 161 will not touch upon the linker.
+    \item \emph{Loader} sets up memory space and runs the machine code instructions in the executable.
+\end{enumerate}
+
+\section{C memory layout}
+At runtime, the OS provides the program with an address space (i.e. a large chunk of memory). In a 32-bit system, memory addresses are 32 bits long, thus the address space has \(2^{32}\) bytes of memory.
+
+\bigskip
+\begin{tabular}{|c|c|}
+    \hline
+	Address & Contents\\ \hline
+	\texttt{0xFFFFFFFF} & Stack (grows down)\\ \hline
+	\(\vdots\) & \(\vdots\) \\ \hline
+	? & Heap (grows up) \\ \hline
+	? & Static data \\ \hline
+	\texttt{0x00000000} & Code \\
+	\hline
+\end{tabular}
+
+\bigskip
+From highest to lowest address, the four sections of the address space are:
+\begin{itemize}
+    \item \emph{Stack} stores local variables and information associated with function calls.
+    \item \emph{Heap} handles dynamically allocated data using \texttt{malloc} and \texttt{free}.
+    \item \emph{Static} section contains constants and static variables are allocated prior to program execution and do not change throughout.
+    \item \emph{Code} contains executable instructions.
+\end{itemize}
+
+\subsection{Little-endian}
+x86 is a \emph{little-endian} system, in which the least significant byte of a word is stored at the lowest memory address.
+
+\section{Registers}
+Registers store memory directly on the CPU and provide additional storage in addition to the address space. Registers do not have addresses and we refer to them by name. Note the following x86 registers:
+\begin{itemize}
+    \item \emph{eip} is the \emph{instruction pointer}; it stores the address of the machine instruction that is currently being executed. The RISC-V version is the program counter (PC).
+    \item \emph{ebp} is the \emph{base pointer}; it stores the address of the top of the stack frame. The RISC-V version is the frame pointer (fp).
+    \item \emph{esp} is the \emph{stack pointer}; it stores the address of the bottom of the stack frame. x86 push and pop instructions decrement and increment the esp respectively to add and remove values from the stack.
+\end{itemize}
+
+\section{x86 instructions}
+Instructions are composed of an opcode and operands. Destination comes last for x86 (in contrast to RISC-V).
+\begin{itemize}
+    \item Register references are preceded with \% and immediates are preceded with \$. 
+    
+    \emph{Example}: \texttt{addl \$0x8, \%ebx} is read as \texttt{EBX = EBX + 0x8}.
+    
+    \item Memory references use parenthesis and can have immediate offsets.
+
+    \emph{Example}: \texttt{xorl 4(\%esi), \%eax} is read as \texttt{EAX = EAX \^ \*(ESI + 4)}.
+\end{itemize}
+
+\section{x86 stack layout}
+In contrast to RISC-V, local variables are always allocated on the stack in x86. When allocating elements, the stack grows down. Individual variables within a stack frame are stored with the first variable at the highest address. However, within an element, the stack grows up. Thus, a struct is stored such that its first member is at the lowest address. 
+
+Global variables are stored at the lowest address of the entire memory block.
+\section{x86 calling convention}
+Arguments are pushed onto the stack in reverse order with the last occupying the highest memory address. Return values are passed in \texttt{eax}.
+
+\section{x86 function calls}
+The stack begins at a high address and grows down when a function is called. The space allocated on the stack for the function is known as the \emph{stack frame}.
+
+When we call a function, we update the values in the previously mentioned registers:
+\begin{itemize}
+    \item eip currently points at the instructions of the caller; it is changed to point to the instructions of the callee.
+    \item ebp and esp currently point to the top and bottom of the caller stack frame; they are updated to point to a new stack frame for the callee.
+\end{itemize}
+
+\emph{Note}: When we update the value of a register, we must save its old value on the stack so we can restore it after the function returns.
+
+\subsection{Steps of an x86 function call}
+\begin{enumerate}
+    \item Push arguments on the stack.
+    \begin{itemize}
+        \item \texttt{push} instruction decrements the \texttt{esp}.
+        \item Arguments are pushed in reverse order.
+    \end{itemize}
+    
+    \item Push old \texttt{eip} (return instruction pointer i.e. \texttt{rip}) on the stack.
+    
+    \item Move \texttt{eip} to point to the instructions for the callee function.
+    \begin{itemize}
+        \item \texttt{call} instruction executes steps 2 and 3.
+    \end{itemize}
+    
+    \item Push old \texttt{ebp} (saved frame pointer i.e. \texttt{sfp}) on the stack.
+    
+    \item Move \texttt{ebp} down to point to the top of the new stack frame.
+    
+    \item Move \texttt{esp} down to allocate space for the new stack frame.
+    \begin{itemize}
+        \item Steps 4, 5, and 6 are part of the function prologue that sets up a stack frame for the callee.
+    \end{itemize}
+    
+    \item Execute function.
+    
+    \item Move \texttt{esp} up to point to the top of the stack frame where \texttt{ebp} is.
+    \begin{itemize}
+        \item Effectively erases the callee stack frame.
+    \end{itemize}
+    
+    \item Restore old \texttt{ebp} (\texttt{sfp}).
+    \begin{itemize}
+        \item \texttt{pop} instruction puts \texttt{sfp} back in \texttt{ebp}.
+        \item Increments \texttt{esp} to delete the popped \texttt{sfp} from the stack.
+    \end{itemize}
+    
+    \item Restore old \texttt{eip} (\texttt{rip}).
+    \begin{itemize}
+        \item \texttt{ret} instruction acts like \texttt{pop \%eip} and accomplishes step 10.
+    \end{itemize}
+    
+    \item Remove arguments from the stack.
+\end{enumerate}
+
+\subsection{x86 function call example}
+\begin{multicols}{2}
+	\begin{minted}{c}
+    void caller(void) {
+        callee(1, 2);
+    }
+    
+    int callee(int a, int b) {
+        int local;
+        return 42;
+    }
+	\end{minted}
+	
+	\columnbreak
+	
+	\begin{minted}{asm}
+	caller:
+    	...
+    	push $2
+    	push $1
+    	call callee
+    	add $8, %esp
+    	...
+	
+	callee:
+    	; Prologue
+    	push %ebp
+    	mov %esp, %ebp
+    	sub $4, %esp
+    	
+    	mov $42, %eax
+    	
+    	move %ebp, %esp
+    	pop %ebp
+    	ret
+	\end{minted}
+\end{multicols}

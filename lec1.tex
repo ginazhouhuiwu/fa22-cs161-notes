@@ -1,0 +1,45 @@
+\chapter{Introduction and Security Principles}
+
+\subsection{CS161 outline}
+\begin{enumerate}
+    \item Introduction to security: What are some general philosophies when thinking about security?
+    \item Memory safety: How do attackers exploit insecure software? How do we defend against these attacks?
+    \item Cryptography: How do we securely send information over an insecure channel?
+    \item Web security: What are some attacks on the web and how do we defend against them?
+    \item Network security: What are some attacks on the internet and how do we defend against them?
+\end{enumerate}
+
+\section{Security principles}
+\begin{description}
+    \item[Know your threat model:]
+    Understand your attacker and their resources and motivations.
+    \item[Consider human factors:]
+    Security systems mused be usable by ordinary people. If a security system is unusable or not user-friendly, it will remain unused.
+    \item[Security is economics:] 
+    Security scales with cost, thus the expected benefit of your defense should be proportional to the expected cost of attack.
+    \item[Detect if you cannot prevent:]
+    A system that depends solely on prevention is brittle. If you cannot prevent an attack from happening, you should be able to detect and response to it.
+    \item[Defense in depth:]
+    Multiple types of defenses should be layered together such that an attacker would have to breach all of them in order to successfully attack a system.
+    \item[Least privilege:]
+    Only grant a program privileges that are needed for correct functioning and no more.
+    \item[Separation of responsibility:]
+    Split up privilege, so no one person or program has complete power. Require more than one party to approve before access is granted.
+    \item[Ensure complete mediation:]
+    All access must be monitored and protected.
+    \item[Shannon's maxim:] Don't rely on security through obscurity. Assume that the attacker knows the system.
+    \item[Use fail-safe defaults:]
+    Construct systems that fail in a safe state, balancing security with usability when a system goes down.
+    \item[Design security in from the start:]
+    Consider all security principles when designing a new system rather than patching it afterwards.
+\end{description}
+
+\section{Trusted computing base}
+The \emph{trusted computing base} (TCB) is the portion of a system that security relies upon. Generally, the TCB is made to be as small as possible for easier write and audit.
+
+\subsection{TCB design principles}
+\begin{itemize}
+    \item Unbypassable (completeness): There should be no way to breach system security by bypassing the TCB.
+    \item Tamper-resistant (security): Parts of the system outside the TCB should not be able to modify the TCB's state.
+    \item Verifiable (correctness): It should be possible to verify the correctness of the TCB, which usually means that the TCB is as simple as possible.
+\end{itemize}
