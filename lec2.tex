@@ -68,14 +68,15 @@ Instructions are composed of an opcode and operands. Destination comes last for 
 \end{itemize}
 
 \section{x86 stack layout}
-In contrast to RISC-V, local variables are always allocated on the stack in x86. When allocating elements, the stack grows down. Individual variables within a stack frame are stored with the first variable at the highest address. However, within an element, the stack grows up. Thus, a struct is stored such that its first member is at the lowest address. 
+In contrast to RISC-V, local variables are always allocated on the stack in x86. When allocating elements, the stack grows down. Individual variables within a stack frame are stored with the first variable at the highest address. However, within an element, the stack grows up. Thus, a struct is stored such that its first member is at the lowest address. Global variables are stored at the lowest address of the entire memory block.
 
-Global variables are stored at the lowest address of the entire memory block.
 \section{x86 calling convention}
 Arguments are pushed onto the stack in reverse order with the last occupying the highest memory address. Return values are passed in \texttt{eax}.
 
 \section{x86 function calls}
 The stack begins at a high address and grows down when a function is called. The space allocated on the stack for the function is known as the \emph{stack frame}.
+
+\medskip
 
 When we call a function, we update the values in the previously mentioned registers:
 \begin{itemize}
@@ -89,40 +90,40 @@ When we call a function, we update the values in the previously mentioned regist
 \begin{enumerate}
     \item Push arguments on the stack.
     \begin{itemize}
-        \item \texttt{push} instruction decrements the \texttt{esp}.
+        \item \texttt{push} instruction decrements the esp.
         \item Arguments are pushed in reverse order.
     \end{itemize}
     
-    \item Push old \texttt{eip} (return instruction pointer i.e. \texttt{rip}) on the stack.
+    \item Push old eip (rip i.e. return instruction pointer) on the stack.
     
-    \item Move \texttt{eip} to point to the instructions for the callee function.
+    \item Move eip to point to the instructions for the callee function.
     \begin{itemize}
         \item \texttt{call} instruction executes steps 2 and 3.
     \end{itemize}
     
-    \item Push old \texttt{ebp} (saved frame pointer i.e. \texttt{sfp}) on the stack.
+    \item Push old ebp (sfp i.e. saved frame pointer) on the stack.
     
-    \item Move \texttt{ebp} down to point to the top of the new stack frame.
+    \item Move ebp down to point to the top of the new stack frame.
     
-    \item Move \texttt{esp} down to allocate space for the new stack frame.
+    \item Move esp down to allocate space for the new stack frame.
     \begin{itemize}
         \item Steps 4, 5, and 6 are part of the function prologue that sets up a stack frame for the callee.
     \end{itemize}
     
     \item Execute function.
     
-    \item Move \texttt{esp} up to point to the top of the stack frame where \texttt{ebp} is.
+    \item Move esp up to point to the top of the stack frame where ebp is.
     \begin{itemize}
         \item Effectively erases the callee stack frame.
     \end{itemize}
     
-    \item Restore old \texttt{ebp} (\texttt{sfp}).
+    \item Restore old ebp (sfp).
     \begin{itemize}
-        \item \texttt{pop} instruction puts \texttt{sfp} back in \texttt{ebp}.
-        \item Increments \texttt{esp} to delete the popped \texttt{sfp} from the stack.
+        \item \texttt{pop} instruction puts sfp back in ebp.
+        \item Increments esp to delete the popped sfp from the stack.
     \end{itemize}
     
-    \item Restore old \texttt{eip} (\texttt{rip}).
+    \item Restore old eip (rip).
     \begin{itemize}
         \item \texttt{ret} instruction acts like \texttt{pop \%eip} and accomplishes step 10.
     \end{itemize}

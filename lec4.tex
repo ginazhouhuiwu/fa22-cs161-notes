@@ -1,0 +1,62 @@
+\chapter{Mitigating Memory Safety Vulnerabilities}
+
+\section{Use memory-safe languages}
+Memory-safe languages are designed to check bounds and prevent undefined memory accesses. 
+
+\medskip
+
+The most cited reason for using unsafe languages such as C is performance advantage. C has more deterministic behavior for memory allocation over a garbage collected language like Java. However, its improved performance is not a tradeoff for security. Languages such as Rust are both safe and not garbage collected.
+
+\section{Write memory-safe code}
+Defend against memory safety vulnerabilities by always adding checks in the code (i.e. defensive programming), using safe libraries, and constraining how untrusted sources/user inputs can interact with the system.
+
+\section{Build secure software}
+You can use tools to analyze and patch insecure code. For example, you can use run-time checks to do automatic bound-checking, write comprehensive tests, and contain potential damage by running in sandboxes or VMs.
+
+\subsection{"New to project" checklist}
+\begin{itemize}
+    \item Turn on compiler warnings.
+    
+    \emph{Example}: \texttt{-Wformat=2} on gcc
+    
+    \item Maintain a list of unsafe functions to search for.
+    
+    \emph{Example}: \texttt{gets()}, \texttt{sprintf()}
+    
+    \item Check for memory errors in your testing infrastructure.
+    
+    \item Lok for serialization vulnerabilities.
+    
+    \emph{Example}: \texttt{serialize()} in Java, \texttt{pickle} in Python
+\end{itemize}
+
+\section{Exploit mitigations}
+If you are forced to program in a memory-unsafe language, you can compile and run code with \emph{code hardening defenses} to make common exploits more difficult.
+
+\medskip
+
+Mitigations are defense-in-depth: they cannot prevent against all attacks, but they act synergetically and are stronger in combination.
+
+\section{Stack canaries}
+When we call a function, the compiler places a sacrificial dummy value (i.e. \emph{stack canary}) on the stack. When the function returns, the compiler checks that the canary value has not been changed. Otherwise, the changed canary value indicates a tempering with the system and we crash the program.
+
+\medskip
+
+A canary values uses a null byte as the first byte to mitigate string-based attacks.
+
+\subsection{Subverting stack canaries}
+\begin{itemize}
+    \item Take advantage of memory vulnerabilities to leak stack memory and learn the canary's value.
+    \item Bypass the location of the canary by writing around it.
+    \item Guess the canary value through brute force.
+\end{itemize}
+
+\section{Non-executable pages}
+Most programs don't need memory that is both written to and executed, so we make portions of memory either executable or writable, but not both. Stack, heap, and static data are writable but non-executable; code is executable but non-writable.
+
+\subsection{Subverting non-executable pages}
+Non-executable pages do not prevent an attack from leveraging existing code in memory as part of the exploit. Attacks can accomplish this through:
+\begin{itemize}
+    \item Return-to-libc: Overwrite the rip to jump to a function in the standard C library (libc).
+    \item Return-oriented programming: Construct custom shellcode using pieces of code (i.e. \emph{gadgets}) in memory. The general strategy for executing ROPs is to write a chain of return addresses at the RIP to achieve the behavior that we want. 
+\end{itemize}

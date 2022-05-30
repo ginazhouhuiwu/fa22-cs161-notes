@@ -1,1 +1,104 @@
 \chapter{Memory Safety Vulnerabilities}
+
+\section{Buffer overflow vulnerabilities}
+C does not have automatic bounds-checking for array or pointer accesses. Attackers exploit the lack of boundaries to control memory that they are not supposed to access.
+
+\medskip
+
+\emph{Example}:
+
+\begin{minted}{c}
+    char buf[8];
+    int (*fnptr)();
+    
+    void vulnerable() {
+        gets(buf);
+    }
+\end{minted}
+
+\texttt{fnptr} is a function pointer stored directly above \texttt{buf} in memory. The attacker can overwrite \texttt{fnptr} with any address of their choosing and redirect execution of the program. This enables a \emph{malicious code injection} attack.
+
+\section{Stack smashing}
+Attackers can exploit buffer overruns by overwriting saved registers on the stack.
+
+\medskip
+
+\emph{Example}:
+
+\begin{minted}{c}
+    void vulnerable() {
+        char buf[8];
+        gets(buf);
+    }
+\end{minted}
+
+\emph{Note}: User input is written from lower to higher addresses.
+
+\medskip
+
+When \texttt{vulnerable()} is called, a stack frame is pushed onto the stack. If the input is too long, the code will write past the end of \texttt{buf}, overwrite the SFP, and overwrite the RIP.
+
+\medskip
+
+Suppose the shellcode we want to inject is 8 bytes long. We can enter the following input: \texttt{[shellcode] + [4 bytes of garbage] + [address of buf]}. The garbage bytes overwrite the SFP and we overwrite the RIP with the address of shellcode.
+
+\section{Integer conversion vulnerabilities}
+
+\subsection{Signed/unsigned vulnerabilities}
+
+\emph{Example}:
+
+\begin{minted}{c}
+    void vulnerable(int len, chat *data) {
+        char buf[8];
+        if (len > 8)
+            return;
+        memcpy(buf, data, len);
+    }
+\end{minted}
+
+The attacker provides \texttt{len} with a negative value and \texttt{memcpy()} is executed with a negative third argument. C will cast the negative value to an unsigned integer (e.g. \texttt{0xffffffff}) and copy a huge amount of memory into \texttt{buf}, causing buffer overflow.
+
+\subsection{Integer overflow vulnerabilities}
+
+\emph{Example}:
+
+\begin{minted}{c}
+    void vulnerable(int len, chat *data) {
+        char *buf = malloc(len + 2);
+        if (!buf)
+            return;
+        memcpy(buf, data, len);
+    }
+\end{minted}
+
+\texttt{len+2} may wrap around if \texttt{len} is too large. For instance, if \texttt{len = 0xffffffff}, then \texttt{len+2} is 1 and the code allocates only 1 byte for the buffer.
+
+\section{Format string vulnerabilities}
+\texttt{printf()} takes in a variable number of arguments. When there is a mismatch between the number of format string modifiers and the number of arguments, \texttt{printf()} fetches data from the stack according to the amount of modifiers. The attacker takes advantage of format string vulnerabilities to learn any value stored in memory.
+
+\section{Heap vulnerabilities}
+
+\subsection{Heap overflow}
+Objects are allocated in the heap. The attacker overflows the buffer and overwrites the vtable pointer of the next object to point to a malicious vtable with pointers to shellcode.
+
+\subsection{Use-after-free}
+When an object is deallocated too early, the attacker allocates memory and overwrites a vtable pointer to point to a malicious vtable. Shellcode is accessed when the deallocated object's function is called.
+
+\section{Serialization}
+Serialization libraries can load and save arbitrary objects. The attacker provides a malicious file to be deserialized.
+
+\section{Putting together an attack}
+\begin{enumerate}
+    \item Find a memory safety vulnerability.
+    \item Write malicious shellcode at a known memory address.
+    \item Overwrite the RIP with the address of shellcode.
+    \item Return from function.
+    \item Execute shellcode.
+\end{enumerate}
+
+\section{Writing robust exploits}
+A working exploit is often machine-dependent, thus writing robust exploits is extremely difficult.
+
+\subsection{NOP sleds}
+Instead of jumping to an exact address, we can chain a long sequence of NOPs such that landing anywhere in the proximity will bring you to the shellcode.
