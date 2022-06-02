@@ -1,1 +1,33 @@
 \chapter{Introduction to Cryptography}
+
+Cryptography provides rigorous guarantees on the security of data and computation in the presence of an attacker. There are three security properties to achieve:
+
+\begin{enumerate}
+    \item \emph{Confidentiality} prevents adversaries from reading private data. Schemes achieve this through \emph{encryption}.
+    \item \emph{Integrity} prevents adversaries form tampering with private data without being detected. Schemes add a \emph{tag} or \emph{signature} on messages to detect attacks.
+    \item \emph{Authenticity} allows us to determine who created a given message. 
+\end{enumerate}
+
+\section{Keys}
+The most basic building block of a cryptographic system is the \emph{key}. The key is a secret value that helps us secure messages. 
+
+\medskip
+
+There are two main key models in cryptography:
+\begin{enumerate}
+    \item Symmetric key model: Alice and Bob both know the value of the same secret key.
+    
+    \item Asymmetric key model: Everybody has a secret key and a corresponding \emph{public} key.
+\end{enumerate}
+
+\section{Kerckhoff’s Principle}
+This principle is closely related to Shannon’s Maxim: Don’t rely on security through obscurity. Kerckhoff's states the following:
+\begin{itemize}
+    \item Cryptosystems should remain secure even when the attacker knows all internal details of the system. 
+    \item The key should be the only thing that must be kept secret.
+    \item The system should be designed to make it easy to change keys that are leaked (or suspected to be leaked).
+    \item  If secrets are leaked, it is easier to change the key than to replace every instance of the running software. 
+\end{itemize}
+
+\section{Threat Models}
+This class focuses on security against \emph{chosen-plaintext attacks}, in which Eve tricks Alice to encrypt arbitrary messages of Eve's choosing, and later aims to recover an intercepted message given the previously observed ciphertexts. Eve cannot trick Bob into decrypting messages of her choosing in this model.

@@ -37,8 +37,18 @@ If you are forced to program in a memory-unsafe language, you can compile and ru
 
 Mitigations are defense-in-depth: they cannot prevent against all attacks, but they act synergetically and are stronger in combination.
 
+\section{Non-executable pages}
+Most programs don't need memory that is both written to and executed, so we make portions of memory either executable or writable, but not both. Stack, heap, and static data are writable but non-executable; code is executable but non-writable.
+
+\subsection{Subverting non-executable pages}
+Non-executable pages do not prevent an attack from leveraging existing code in memory as part of the exploit. Attacks can accomplish this through:
+\begin{itemize}
+    \item Return-to-libc: Overwrite the rip to jump to a function in the standard C library (libc).
+    \item Return-oriented programming: Construct custom shellcode using pieces of code (i.e. \emph{gadgets}) in memory. The general strategy for executing ROPs is to write a chain of return addresses at the rip to achieve the behavior that we want. 
+\end{itemize}
+
 \section{Stack canaries}
-When we call a function, the compiler places a sacrificial dummy value (i.e. \emph{stack canary}) on the stack. When the function returns, the compiler checks that the canary value has not been changed. Otherwise, the changed canary value indicates a tempering with the system and we crash the program.
+When we call a function, the compiler places a sacrificial dummy value (i.e. \emph{stack canary}) on the stack. When the function returns, the compiler checks that the canary value has not been changed. Otherwise, the changed canary value indicates a tampering with the system and we crash the program.
 
 \medskip
 
@@ -51,12 +61,63 @@ A canary values uses a null byte as the first byte to mitigate string-based atta
     \item Guess the canary value through brute force.
 \end{itemize}
 
-\section{Non-executable pages}
-Most programs don't need memory that is both written to and executed, so we make portions of memory either executable or writable, but not both. Stack, heap, and static data are writable but non-executable; code is executable but non-writable.
+\section{Pointer authentication}
+Generalizing the idea of stack canaries, the CPU replaces the 22 unused bits (in a 64-bit architecture) with \emph{pointer authentication code (PAC)} before storing an address on the stack.
 
-\subsection{Subverting non-executable pages}
-Non-executable pages do not prevent an attack from leveraging existing code in memory as part of the exploit. Attacks can accomplish this through:
+\subsection{Properties of the PAC}
+Each possible address has a unique PAC. If an attacker changes the address without changing its PAC, the PAC will no longer be valid. The CPU has a master secret that can generate a PAC for each possible address and is not accessible to the program. Thus, leaking the program memory will not reveal the master secret, in contrast to canaries which can be leaked.
+
+\subsection{Subverting pointer authentication}
 \begin{itemize}
-    \item Return-to-libc: Overwrite the rip to jump to a function in the standard C library (libc).
-    \item Return-oriented programming: Construct custom shellcode using pieces of code (i.e. \emph{gadgets}) in memory. The general strategy for executing ROPs is to write a chain of return addresses at the RIP to achieve the behavior that we want. 
+    \item Find a vulnerability to trick the program into generating a PAC for any address.
+    
+    \item Learn the master secret through vulnerabilities in the OS, as the OS sets up secrets.
+    
+    \emph{Workaround}: Embed the master secret in the CPU that never directly reads.
+    
+    \item Brute force guess PACs.
+    
+    \item Pointer reuse. 
+    
+    We can defend against this attack by having multiple master secrets for different types of pointers. The CPU can also generate a unique PAC for each pointer and \emph{context}, i.e. where the pointer is located.
 \end{itemize}
+
+\section{Address space layout randomization (ASLR)}
+With ASLR, each segment of memory is placed in a different random location each time the program is run. Thus, the attacker can no longer overwrite some part of memory with a shellcode address.
+
+\subsection{Subverting ASLR}
+\begin{itemize}
+    \item Leak the address of a pointer close to the shellcode, as ASLR preserves \emph{relative addresses}.
+    
+    \emph{Examples}: An attacker who leaks the absolute address of the sfp could deduce the rip address, since rip always remains 4 bytes above the sfp.
+    
+    \item Guess the address by brute force. A 32-bit system will only be constrained to around 16 bits of entropy for address randomization.
+\end{itemize}
+
+\section{Summary of mitigations}
+Recall the steps of putting together an attack. Each previous mitigation fits into the sequence as follows:
+
+\begin{enumerate}
+    \item Find a memory safety vulnerability.
+    
+    \item Write malicious shellcode at a known memory address.
+    \begin{itemize}
+        \item Address-space layout randomization: Makes predicting addresses difficult.
+    \end{itemize}
+    \item Overwrite the RIP with the address of shellcode.
+    \begin{itemize}
+        \item Stack canaries, pointer authentication: Crashes program instead of allowing an exploit to succeed.
+    \end{itemize}
+    \item Return from function.
+    \item Execute shellcode.
+    \begin{itemize}
+        \item Non-executable pages: Ensures that the written shellcode cannot run.
+    \end{itemize}
+\end{enumerate}
+
+\section{Combining mitigations}
+\emph{Synergistic protection} is the process of combining multiple mitigations such that they strengthen collectively. 
+
+\medskip
+
+\emph{Example}: To defeat both ASLR and non-executable pages, the attack must find two vulnerabilities. First, leak memory and reveal the address location (ASLR). Then, write to memory and write a ROP chain (non-executable pages).
