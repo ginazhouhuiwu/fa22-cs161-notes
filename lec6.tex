@@ -1,1 +1,102 @@
-\chapter{Symmetric-Key Cryptography}
+\chapter{Block Ciphers and Modes of Operation}
+
+\section{Symmetric-key cryptography}
+In the symmetric key setting, we assume that Alice and Bob share the same secret key not known to anyone else. We want to build an encryption scheme that guarantees confidentiality. For modern schemes, all messages are bitstrings.
+
+\section{IND-CPA security}
+First we provide a more formal, rigorous definition of \emph{confidentiality}: the ciphertext $C$ should give the attacker no additional information about the message (plaintext) $M$.
+
+\medskip
+
+We will focus on the \emph{chosen-plaintext attack} model. If Eve can trick Alice into encrypting some messages and she still cannot distinguish between messages sent, then the scheme preserves confidentiality. This is called \emph{indistinguishability under chosen plaintext attack (IND-CPA)}.
+
+\subsection{IND-CPA game}
+\begin{enumerate}
+    \item Eve issues plaintexts $M_0$ and $M_1$ of the same length to Alice.
+    \item Alice chooses one message $M_b$ uniformly at random and sends encrypted message $Enc(K, M_b)$ back to Eve.
+    \item Eve may ask Alice for encryptions of any message of Eve's choosing (chosen-plaintext attack).
+    \item Eve attempts to learn from known encryptions and guesses whether $M_b$ is $M_0$ or $M_1$.
+\end{enumerate}
+
+If the scheme is confidential, Eve can correctly guess the message with probability 1/2. Otherwise, Eve has learned information.
+
+\medskip
+
+\emph{Note}: In step 3, notice that Eve may ask Alice for the encryption of $M_0$ and $M_1$ again. This is by design, as it forces any IND-CPA secure scheme to be non-deterministic.
+
+\section{One-time pad}
+The OTP encryption scheme is described by three procedures:
+\begin{itemize}
+    \item Key generation: Alice and Bob pick a shared random n-bit key $K$.
+    \item Encryption: $C = M \oplus K$.
+    \item Decryption: $M = C \oplus K$.
+\end{itemize}
+
+\subsection{OTP proof of security}
+For any given plaintext $M$, we can achieve every possible value of a ciphertext $C$ using a unique choise of the shared key $K$. In other words, Eve always sees a uniformly random n-bit string independent of the plaintext.
+
+\subsection{Drawback of OTP}
+OTP is not secure if a key is reused. If the key $K$ is used to encrypt two messages $M_0$ and $M_1$, then Eve can XOR the ciphers and compute $(M_0 \oplus K) \oplus (M_1 \oplus K) = M_0 \oplus M_1$. With this information, she learns where the messages match and can use one to deduce the other.
+
+\section{Block ciphers}
+A block cipher transforms a n-bit input into an n-bit output. It also takes in a k-bit key and has $2^k$ different settings for scrambling. It performs two operations: encryption and decryption.
+
+\medskip
+
+Properties:
+\begin{itemize}
+    \item Encryption function ($E(K, M)$): \(E_K: \{0, 1\}^n \rightarrow \{0, 1\}^n\).
+    \item $E_K$ is a \emph{permutation} on the n-bit strings, i.e. it is bijective.
+    \item $D_K$ is the \emph{inverse} mapping of $E_K$: $D_K(E_K(M)) = M$.
+\end{itemize}
+
+\subsection{Advanced Encryption Standard (AES)}
+AES is the modern standard block cipher implementation. Block size is always 128 bits, and we will assume a key size of 128 bits in this class.
+
+\subsection{Block cipher security}
+Block ciphers are \emph{deterministic} and consequently not IND-CPA secure. However, they have the important property of being \emph{computationally indistinguishable} from a random permutation, i.e. $E_K$ behaves like a random permutation on a n-bit string. This makes brute-force attacks infeasible.
+
+\section{Modes of operation}
+The main issues with AES are that 1) we can only encrypt n-bit messages and 2) it is deterministic.
+
+\subsection{Electronic Code Book (ECB) mode}
+Plaintext is broken into n-bit blocks and each block is encoded using the block cipher. The ciphertext is a concatenation of $C_i$s. This scheme is flawed because redundancies in the blocks leak information about the plaintext.
+\begin{itemize}
+    \item ECB encryption: $C_i = E_K(M_i)$
+    \item ECB decryption: $M_i = D_K(C_i)$
+\end{itemize}
+
+\subsection{Cipher Block Chaining (CBC) mode}
+Sender picks a random n-bit string called the \emph{initial vector (IV)}. This effectively adds non-determinism and creates an IND-CPA secure scheme. Decryption is the inverse function.
+\begin{itemize}
+    \item CBC encryption: $C_0 = IV$; $C_i = E_K(C_{i-1} \oplus M_i)$
+    \item CBC decryption: $P_i = D_K(C_i) \oplus C_{i-1}$
+\end{itemize}
+
+\medskip
+
+\emph{Note}: Reusing the IV is insecure.
+
+\medskip
+
+CBC mode has sequential encryption, since each cipher block depends on the previous, but \emph{parallel} decryption.
+
+\medskip
+
+We need each plaintext block to be the same length. If the plaintext length is not a multiple of 128 bits, we add \emph{padding}. One example of an unambiguous padding scheme, which ensures that the receiver can identify the padding, is PCKS\#7. We pad the message by the number of padding bytes used.
+
+\subsection{Counter (CTR) mode}
+Recall that one-time pads are secure if we never reuse the key. IN CTR, a counter is initialized to IV (i.e. \emph{nonce}) and repeatedly incremented and encrypted to obtain a sequence, acting as OTP keys: $Z_i = E_K(IV + i)$.
+
+\begin{itemize}
+    \item CTR encryption: $C_i = E_K(IV + i) \oplus M_i$
+    \item CTR decryption: $M_i = E_K(IV + i) \oplus C_i$
+\end{itemize}
+
+\medskip
+
+\emph{Note}: CTR decryption also uses the encryption function.
+
+\medskip
+
+CTR mode encryption and decryption can both be parallelized.

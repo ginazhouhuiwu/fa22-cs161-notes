@@ -1,1 +1,18 @@
-\chapter{Block Ciphers and Modes of Operation}
+\chapter{Cryptographic Hashes and MACs}
+
+\section{Hash function}
+A hash function takes in an arbitrary length message and outputs a fixed length n-bit hash: $\{0, 1\}^* \rightarrow \{0, 1\}^n$. It is deterministic and efficient.
+
+\medskip
+ 
+ \emph{Intuition}: A hash function provides a fixed-length fingerprint over a sequence of bits.
+ 
+\section{Properties of hash functions}
+ We want hash functions to have the following properties to ensure security:
+ \begin{itemize}
+     \item One-way/preimage resistant: We cannot feasibly (i.e. compute in polynomial time) map an output back to its input.
+     \item Collision resistant: It is infeasible to find any collisions. Note that it is impossible to avoid collisions.
+     \item Random: There is no predictable patterns for determining how input affects output.
+ \end{itemize}
+ 
+ 
