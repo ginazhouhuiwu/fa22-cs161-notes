@@ -1,0 +1,31 @@
+\chapter{Public-Key Encryption and Digital Signatures}
+
+\section{Public-key encryption}
+In a public-key (asymmetric) cryptosystem, each person has two keys, public and private. Everybody can encrypt using the shared public key but only the intended recipient can decrypt using their private key.
+
+\section{El Gamal encryption}
+El Gamal is a modification of Diffie-Hellman to support encrypting and decrypting messages directly.
+\begin{itemize}
+    \item Key generation: Bob generates private key $b$ and public key $B = g^b \mod p$.
+    \item Encryption: Alice generates random $r$ and computes $C_1 = R = g^r \mod p$. Alice then computes $C_2 = M \times B^r \mod p$ and sends $C_1, C_2$.
+    \item Decryption: Bob computes $C_2 \times C_1^{-b} = M \times B^r \times R^{-b} = M \times g^{br} \times g^{-br} = M \mod p$.
+\end{itemize}
+
+\medskip
+
+El Gamal is not used in practice as it is not secure and the adversary can tamper with the message (i.e. \emph{malleability}).
+
+\section{RSA encryption}
+The main idea is we use the public key to encrypt messages and a corresponding private key to decrypt. An attacker cannot break RSA unless they can factor large primes.
+
+\medskip
+RSA is deterministic and not IND-CPA secure.  Sending the same message encrypted with different public keys also leaks information. As a result, we add randomness through a \emph{padding mode}.
+
+\subsection{Optimal asymmetric encryption padding (OAEP)}
+OAEP is a padding scheme that generates a random symmetric key, uses the key to scramble the message, and encrypts both the scrambled messange and the random key. 
+
+\section{Digital signatures}
+Digital signatures are the public-key version of MACs, which provide integrity and authenticity to data. In a digital signature scheme, only the owner can generate a signature using the private key (\emph{signing} key) while everyone can verify it with the public key (\emph{verification} key).
+
+\section{RSA signatures}
+RSA signature is the same as encryption, but we encrypt the hash with the private key.

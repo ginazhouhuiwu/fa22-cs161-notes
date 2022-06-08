@@ -1,0 +1,42 @@
+\chapter{PRNGs and Diffie-Hellman Key Exchange}
+
+\section{Pseudorandom number generators (PRNGs)}
+A PRNG is a deterministic algorithm that takes in a small amount of truly random bits (i.e. \emph{seed}) and outputs a long sequence of pseudorandom bits. For an attacker who does not know the seed, a secure PRNG is computationally indistinguishable from a true random generator.
+
+\subsection{Rollback resistance}
+A desirable property of a secure PRNG is \emph{rollback resistance}. If an attacker learns the internal PRNG state, they cannot learn anything about previous states.
+
+\section{HMAC-DRBG}
+Idea: HMAC output looks unpredictable, so we use it to build a PRNG (HMAC-Deterministic Random Bit Generator). HMAC-DRBG keeps secret key $K$ and "message" input $V$ as internal state. It computes HMAC on the previous block of PRNG output to generate a new block of pseudorandom bits iteratively. 
+
+\medskip
+
+HMAC-DRBG has rollback resistance: if you can compute the previous output from the current state, then you have reversed the hash function.
+
+\section{Stream ciphers}
+Stream ciphers encrypt and decrypt messages as they arrive bit-by-bit. A common stream cipher algorithm involes outputting an unpredictable stream of bits and using it as the key of a one-time pad.
+
+\section{Diffie-Hellman key exchange}
+First we introduce the \emph{discrete logarithm problem}: given $f(x) = g^x (\mod p)$, there is no efficient algorithm to solve for $x$. Diffie-Hellman relies on the hardness of this problem:
+\begin{itemize}
+    \item We have public parameters $p$ (large prime) and $g$ $\in (1, p-1)$.
+    \item Alice picks secret value $a$ and computes $g^a \mod p$; Bob picks secret value $b$ and computes $g^b \mod p$. They each announce the results but keep $a$ and $b$ secret.
+    \item Alice and Bob compute $g^{ab} \mod p$ using their respective secret value and the shared information.
+\end{itemize} 
+
+\medskip
+
+Since there is no efficient algorithm to deduce $g^{ab}$ from only $g^a$ and $g^b$, Diffie-Hellman is secure.
+
+\section{Issues of Diffie-Hellman}
+\begin{itemize}
+    \item Not secure against man-in-the-middle (MITM) attacks.
+    \item \emph{Active protocol} that requires both Alice and Bob to be online to exchange keys.
+    \item Does not provide authenticity or integrity.
+\end{itemize}
+
+\subsection{Attacks on Diffie-Hellman}
+Diffie-Hellman is only secure against a passive adversary. An active attacker can intercept Alice and Bob's shared values by sending her own secret value $g^m$.
+
+\section{Elliptic-curve Diffie-Hellman (ECDH)}
+A variant of Diffie-Hellman relies on elliptic curves rather than modular arithmetic. The idea is that Diffie-Hellman can be generalized to any mathematical group that has the cyclic property of "wrapping around."

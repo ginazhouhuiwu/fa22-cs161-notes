@@ -5,14 +5,76 @@ A hash function takes in an arbitrary length message and outputs a fixed length 
 
 \medskip
  
- \emph{Intuition}: A hash function provides a fixed-length fingerprint over a sequence of bits.
+\emph{Intuition}: A hash function provides a fixed-length fingerprint over a sequence of bits.
  
-\section{Properties of hash functions}
- We want hash functions to have the following properties to ensure security:
+\subsection{Properties of hash functions}
  \begin{itemize}
      \item One-way/preimage resistant: We cannot feasibly (i.e. compute in polynomial time) map an output back to its input.
-     \item Collision resistant: It is infeasible to find any collisions. Note that it is impossible to avoid collisions.
+     \item Collision resistant: It is infeasible to find any two inputs $x \neq x'$ such that $H(x) = H(x')$. Note that it is impossible to avoid collisions.
      \item Random: There is no predictable patterns for determining how input affects output.
  \end{itemize}
  
+ \section{Length extension attacks}
+ Given $H(x)$ and the length of $x$, an attacker can create $H(x||m)$ for any $m$ of the attacker's choosing.
  
+\section{Message authentication codes (MACs)}
+To guarantee integrity and authenticity, we want to detect \emph{spoofing} (i.e. prove that someone with the key sent the message) and \emph{tampering}. 
+
+\medskip
+
+A MAC is a keyed checksum of the message. Any change to the message renders it invalid, so integrity and authenticity are ensured. We define the following functions:
+
+\begin{itemize}
+    \item Key generation: Generates a fixed-length secret key $K$.
+    \item $MAC(K, M)$: Generates a tag $T$ for the arbitrary-length message $M$ using $K$; function is deterministic.
+\end{itemize}
+
+\subsection{Properties of MACs}
+\begin{itemize}
+    \item A secure MAC is \emph{existentially unforgeable}: without the key, an attack cannot create a valid tag on a message.
+    \item A MAC provides authenticity if only two people have the secret key.
+    \item A MAC does not guarantee confidentiality due to determinism, thus information leakage is possible.
+\end{itemize}
+
+\section{HMAC}
+A Hash Message Authentication Code (HMAC) combines benefits of a MAC and the underlying hash. 
+
+\medskip
+
+We start with the general NMAC:
+\begin{itemize}
+    \item Key generation: Generates two random n-bit keys $K_1$ and $K_2$, where n is the length of the hash output.
+    \item $NMAC(K_1, K_2, M) = H(K_1 || H(K_2 || M))$: Using two hashes prevents a length extension attack.
+\end{itemize}
+
+\medskip
+
+HMAC is a more specific version of NMAC that requires only one key:
+
+\begin{itemize}
+    \item $HMAC(M, K) = H((K' \oplus \textit{opad}) || H((K' \oplus \textit{ipad}) || M))$: Given variable-length $K$, we pad or hash $K$ to transform it into n-bits, denoted as $K'$.
+    \item \textit{opad} is the hard-coded byte \texttt{0x5c}; \textit{ipad} is \texttt{0x36}, repeated until n bits. XORing $K'$ with two different pads satisfies unrelatedness.
+\end{itemize}
+
+\section{Authenticated encryption}
+Symmetric-key authenticated encryption combines a block cipher mode (confidentiality) and a MAC (integrity and authenticity). There are two main approaches:
+\begin{enumerate}
+    \item \emph{encrypt-then-MAC}: First encrypt the plaintext, then produce a MAC over the ciphertext. 
+    
+    We send the values $\text{Enc}_{K_1}(M)$, $\text{MAC}_{K_2}(\text{Enc}_{K_1}(M))$.
+    
+    \item \emph{MAC-then-encrypt}: First MAC the plaintext, then encrypt the message and MAC together. 
+    
+    We send the value $\text{Enc}_{K_1}(M || \text{MAC}_{K_2}(M))$.
+\end{enumerate}
+
+\medskip
+
+\emph{Note}: Encryption and MAC functions should use different keys.
+
+\medskip
+
+In practice with MAC-then-encrypt, tampering cannot be detected until after decryption. Attackers can supply arbitrary tampered inputs that must be decrypted. Moreover, passing attacker-chosen inputs through the decryption function may cause side channel leaks.
+
+\section{AEAD encryption}
+Authenticated Encryption with Additional Data (AEAD) supplies integrity and authenticity through additional unencrypted data. Improper use results in catastrophic failure in security.

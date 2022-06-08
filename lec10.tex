@@ -1,0 +1,39 @@
+\chapter{Certificates and Passwords}
+
+\section{Man-in-the-middle attacks}
+Public-key cryptography alone is not secure against \emph{man-in-the-middle} (MITM) attacks. To ensure that every participant can verify the authenticity of other people's public keys, we introduce several approaches to secure key management.
+
+\subsection{Leap-of-faith authentication}
+The first time that you use SSH to connect to a new server, your SSH client asks the server for its public key and trusts it with a "leap of faith" (i.e. \emph{trust-on-first-use}).
+
+\section{Certificates}
+A \emph{certificate} is a signed endorsement that contains someone's identity and their public key.
+
+\subsection{Trusted directory service}
+A central trusted directory (TD) maintains an association between the name of each participant and their public key. This service has a number of shortcomings:
+\begin{itemize}
+    \item \emph{Trust}: Requires complete trust in the TD.
+    \item \emph{Scalability}: The directory is a bottleneck that slows down communication when there are many requests.
+    \item \emph{Reliability}: The service is a single point of failure, which makes it vulnerable to attacks and results in a brittle system.
+    \item \emph{Online}: Users must be connected to communicate.
+\end{itemize}
+
+\subsection{Certificate authorities}
+To address the issue of scalability, we establish hierarchical trust through authorities. There is a root of trust (i.e. \emph{root certificate authority}) that may \emph{delegate} trust and signing power over to other authorities down a power hierarchy. This also ensures that certificates are trusted by multiple authorities.
+
+\section{Passwords}
+We need a way to verify passwords without storing any information that would allow someone to recover the original password.
+
+\subsection{Password hashing}
+For each user, we store a hash of their password. The hash must be deterministic and one-way, such that we can verify it and an attacker may not retrieve the original. 
+
+\medskip
+
+There are several shortcomings with simple password hashing, the most significant one being a vulnerability to brute-force password guessing. Attackers can easily identify common passwords and their corresponding hashes, and use a lookup table.
+
+\subsection{Improvements to password hashing}
+We can add a unique, random \emph{salt} to each user such that brute-force attacks are more difficult. However, it is not enough as attackers can still attempt guesses even with a larger workload. 
+
+\medskip
+Thus we introduce \emph{slow hash} by adding a large constant factor to the cost of hashing. Though we are not altering the asymptotic difficulty of attacks, this makes brute-force guessing extremely inefficient.
+
