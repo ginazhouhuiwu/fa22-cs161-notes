@@ -1,1 +1,38 @@
 \chapter{Bitcoin}
+
+\section{Blockchains}
+Blockchain technology is an append-only data structure. A public/permissionless blockchain is one where anybody can participate as appenders as there is no central authority.
+
+\subsection{Hash chains}
+In a hash chain, each block has a hash to its previous block of data. The inclusion of the previous block's hash validates all the previous blocks. 
+
+\subsection{Merkle trees}
+Each leaf node is labeled with a hash and all other nodes are labelled with the hash of the labels of its child nodes. A Merkle tree allows efficient appending and updating of hashes. 
+
+\section{Bitcoin}
+Bitcoin is a \emph{cryptocurrency}: a tradable cryptographic token based on the notion of a \emph{public ledger} (i.e. blockchain). The goal of Bitcoin is to have decentralized trust. Anybody can view the public ledger and identify an invalid transaction.
+
+\subsection{Bitcoin mining}
+In Bitcoin, only \emph{miners} can add a block if they have \emph{proof of work}, which is a computational puzzle that takes the hash of the current block concatenated with a random number. The proof of work is solved when the resulting hash starts with $N$ zero bits, where $N$ is determined by the Bitcoin algorithm. The longest correct chain is accepted when blocks are broadcasted.
+
+\medskip
+
+The idea is that in order to rewrite the last $k$ blocks of history, a miner has to do as many hashes as were used to record the last $k$ blocks (i.e. proof of waste).
+
+\subsection{Issues of Bitcoin}
+\begin{enumerate}
+    \item \emph{Size}: In order to verify a user's balance, you have to check the entire transaction history, resulting in inefficient storage.
+    
+    \item \emph{Capacity}: To limit the blockchain growth against possible spam, Bitcoin processes transaction extremely slowly. This requires trusted, centralized entities to maintain databases, which is equivalent to banks.
+    
+    \item \emph{Power}: The Bitcoin system consumes roughly the same power as Thailand.
+    
+    Red Queen's Race: Efficiency gains gets translated into more power, not less power consumption.
+    
+    \item \emph{Sybil}: Proof of work is not actually about consensus (i.e. "longest chain wins"), but instead about solving the Sybil (fake node) problem to prevent an attacker from generating an enormous number of nodes.
+    
+    \item \emph{Irreversibility}: Undoing an exchange is impossible by design to mitigate fraud. This also makes Bitcoins vulnerable to \emph{theft}; compromising the private is enough to steal from a user.
+\end{enumerate}
+
+\subsection{Censorship resistance}
+The true value of Bitcoin is censorship resistance as no purported central authority overlooks transactions. However, this enables crime.
