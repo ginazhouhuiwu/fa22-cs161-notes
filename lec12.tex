@@ -1,1 +1,62 @@
 \chapter{Intro to Web}
+
+The web is a collection of data and services. Such services are provided by web servers and accessed through browsers. The web is not the Internet.
+
+\section{URL}
+An URL uniquely identifies a piece of data on the web. It consists of several parts:
+
+\medskip
+\begin{tabular}{|c|c|c|}
+    \hline
+    \texttt{https://} &
+    \texttt{www.example.com} &
+    \texttt{/index.html} \\
+    \hline
+\end{tabular}
+
+\begin{enumerate}
+    \item \emph{Protocol (scheme)} tells the browser how to retrieve the resource.
+    \item \emph{Location (domain)} specifies which web server to contact to retrieve the resource.
+    \item \emph{Path} indicates which resource on the web server to request.
+\end{enumerate}
+
+\section{HTTP}
+HTTP is a protocol used to request and retrieve data from a web server. In this model, the browser (client) sends a request to the web server, which processes the request and sends a response back.
+
+\subsection{Structure of a request}
+A request consists of a URL path, method, and data. We will focus on two types of request methods:
+\begin{itemize}
+    \item GET: Intended for requests that don't change server-side state, i.e. "gets" information from the server.
+    \item POST: Intended for requests that update server-side state, i.e. "posts" information to the server.
+\end{itemize}
+
+\section{Elements of a webpage}
+The HTTP protocol returns arbitrary files and the browser interprets the data according to a specified media type. Much of the web is build in three languages: HTML, CSS, and JavaScript.
+
+\subsection{HTML}
+HTML allows users to create structured documents with paragraphs, links, embedded images, etc. HTML frames pose a security risk since the inner page may be from a malicious source. To protect against this, modern browsers enforce frame isolation, which ensures that outer and inner pages cannot change the contents of one another.
+
+\subsection{CSS}
+CSS lets users modify the appearance of an HTML page. It can be extremely powerful if used maliciously.
+
+\subsection{JavaScript}
+JavaScript is a high-level programming language for running code in the web browser. It is client-side, meaning that it runs in the browser not the server. 
+
+\medskip
+Although JavaScript is an interpreted language, it is fast. Most web browsers implement JavaScript as a just-in-time compiler, dynamically converting it into machine code to speed up execution.
+
+\medskip
+Since the web browser runs JavaScript from external websites, a vulnerability in the browser's JavaScript interpreter/compiler is extremely dangerous. Because this language is so powerful, modern web browsers run JavaScript in a sandbox to prevent the code loaded from a webpage from accessing sensitive data on your computer.
+
+\subsection{DOM}
+After the browser receives data from the server, HTML and CSS are pared into a DOM (Document Object Model). The DOM is a cross-platform model for representing and interacting with objects in HTMl. JavaScript is then applied on the DOM and lastly, the browser renders the DOM to display a webpage to the user.
+
+\section{Same-origin policy}
+Modern web browsers defend against tampering from malicious websites by adopting the \emph{same-origin policy}. This ensures that two websites with different origins cannot interact with each other.
+
+\medskip
+There are a few exceptions to this rule:
+\begin{itemize}
+    \item JavaScript runs with the origin of the page that loads it.
+    \item Websites can fetch and display images from other origins.
+\end{itemize}
