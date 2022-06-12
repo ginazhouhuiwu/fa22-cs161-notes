@@ -1,1 +1,38 @@
 \chapter{Cookies and CSRF}
+
+\section{Cookies}
+HTTP is a stateless protocol, meaning that the web server processes each request independently. In order to customize responses (e.g. enable dark mode on a certain website), data must be stored in the browser to maintain state across multiple requests. Such data are \emph{cookies}.
+
+\subsection{Cookie attributes}
+Each cookie is a name-value pair. Additional cookie attributes help browser determine which cookies should be attached to each request:
+\begin{itemize}
+    \item \emph{Domain} and \emph{Path} tell the browser which URLs to send the cookie to.
+    \item \emph{Secure} tells the browser to only send the cookie over a secure HTTPS connection.
+    \item \emph{HttpOnly} prevents JavaScript from accessing and modifying the cookie.
+    \item \emph{Expires} field indicates when to stop remembering the cookie.
+\end{itemize}
+
+\subsection{Cookie policy}
+When a server sets a cookie, the cookie's domain must be a URL suffix of the server's URL. The only exception is that cookies cannot have domains set to a top-level domain (e.g. .com or .edu).
+
+\medskip
+\emph{Note}: Cookie policy is not the same as same-origin policy.
+
+\section{Session authentication}
+When a user sends a login request with a valid username and password, the server generates a new \emph{session token} and sends it to the user as a cookie. In future requests, the browser looks up the corresponding user and attaches the session token cookie.
+
+\section{Cross-site request forgery (CSRF)}
+In a CSRF attack, the attacker forces the victim to make an unintended request by exploiting cookie-based authentication.
+
+\subsection{CSRF attack steps}
+\begin{enumerate}
+    \item User authenticates to the server and receives a cookie with a valid session token.
+    \item Attacker tricks the victim into making a malicious request to the server.
+    \item The server accepts the malicious request from the victim.
+\end{enumerate}
+
+\subsection{CSRF tokens}
+A defense against CSRF attacks is including a CSRF token, which is a random secret value provided by the server to the user. The user must attach the same value in the request for the server to accept the request.
+
+\subsection{Referer validation}
+In a CSRF attack, the victim usually makes the malicious request from a different website. Thus, another defense against CSRF tokens is to check the Referer field in the HTTP header.n a CSRF attack, the victim usually makes the malicious request from a different website. The Referer header indicates which URL the request was made from.
