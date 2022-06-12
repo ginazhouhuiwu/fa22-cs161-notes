@@ -1,1 +1,45 @@
 \chapter{XSS and UI Attacks}
+
+\section{Cross-site scripting (XSS)}
+XSS attacks are where the attacker injects malicious JavaScript onto a webpage. When the website loads, the user's browser runs the malicious JavaScript, which can access information from the site. XSS attacks subvert the same-origin policy.
+
+\subsection{Stored XSS}
+In a stored (persistent) XSS attack, the attacker's JavaScript is \emph{stored} on the legitimate server and sent to browsers. It requires the victim to load the page with injected JavaScript.
+
+\medskip
+\emph{Example}: If an attacker puts malicious JavaScript on a Facebook post, anybody who loads the attacker's page will receive an HTML page with the script.
+
+\subsection{Reflected XSS}
+In a reflected XSS attack, the attacker causes the victim to input JavaScript into a request and the content is \emph{reflected} (copied) in the response from the server. It requires the victim to make a request with injected JavaScript.
+
+\medskip
+\emph{Example}: An attacker could create a malicious HTTP GET request URL for a Google search. When the victim loads the URL, the browser runs the script.
+
+\medskip
+\emph{Note}: Reflected XSS and CSRF both require the victim to make a request to a link. However, in CSRF, the request acts on the server to change the user's state; in XSS, the request causes the server to return content to the client.
+
+\section{XSS denfenses}
+\begin{itemize}
+    \item \emph{HTML sanitize}: Check for malicious input that might cause JavaScript to run. We can replace certain characters with sequences that represent them as data rather than HTML.
+    \item \emph{Content security policy (CSP)}: Instruct the browser to only allow scripts loaded from specific domains.
+\end{itemize}
+
+\section{User interface (UI) attacks}
+The idea behind UI attacks is to trick the victim into thinking they are taking an intended action when they are actually executing a malicious action. Such attacks take advantage of \emph{user interfaces}.
+
+\section{Clickjacking}
+In \emph{clickjacking}, the attacker tricks the victim into clicking on something malicious. Although the browser disables the website from interacting across origins (same-origin policy), it trusts the user's clicks. 
+
+\subsection{Clickjacking defenses}
+\begin{itemize}
+    \item \emph{Enforce visual integrity}: Ensure clear visual separation between important dialogues and contents.
+    \item \emph{Enforce temporal integrity}: Delay the click such that the user is forced to spend time looking at the field before performing a click.
+    \item \emph{Confirmation pop-ups}: Confirm that the user's click is intentional.
+    \item \emph{Frame-busting}: The legitimate website forbids other websites from embedding it in an iframe.
+\end{itemize}
+
+\section{Phishing}
+In \emph{phishing}, the attacker tricks the victim into sending the attacker personal information. The user cannot distinguish between a legitimate website and a malicious website \emph{impersonating} the legitimate website.
+
+\subsection{Two-factor authentication (2FA)}
+Since phishing attacks allow attackers to learn passwords, a defense is to require more passwords to log in. With 2FA, the user must prove their identity in two different ways before successfully authenticating.
