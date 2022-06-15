@@ -1,1 +1,57 @@
-\chapter{Low-Level Network Attacks}
+\chapter{ARP, DHCP, and WPA}
+
+\section{Ethernet}
+Ethernet is a LAN implementation that uses wires to connect all machines. Most Ethernet devices can enter \emph{promiscuous mode} and receive all packets even if it is not the explicit receiver (i.e. \emph{sniffing packets}).
+
+\section{Address resolution protocol (ARP)}
+ARP translates layer 3 IP addresses into layer 2 MAC addresses. The protocol follows three steps:
+\begin{enumerate}
+    \item Alice (transmitter) broadcasts to every machine in the LAN, asking for the corresponding MAC of the IP address she desires to send to.
+    \item Bob (receiver) responds to the transmitter with his MAC address.
+    \item Alice caches the IP address to MAC address mapping.
+\end{enumerate}
+
+\subsection{ARP spoofing}
+Mallory can create a spoofed reply and send it to Alice before Bob, since there is no way to verify that the reply in step 2 is from Bob. ARP spoofing is an example of a \emph{race condition} in which the attacker's response arrives faster than the legitimate response.
+
+\subsection{Switches}
+Modern wired Ethernet networks defend against spoofing by using \emph{switches}. Switches maintain a cache of MAC to physical port mappings. If a packet's IP address has a known MAC in the cache, the switch directly sends it; otherwise, it broadcasts the packet to all computers.
+
+\section{Dynamic host configuration protocol (DHCP)}
+DHCP sets up configurations for a computer when it first joins a local network. The DHCP handshake follows four steps between the client and the server:
+\begin{enumerate}
+    \item \emph{Client discover}: The client broadcasts a request for a configuration.
+    \item \emph{Serve offer}: Servers able to offer IP addresses responds with configuration settings.
+    
+    The offer includes an IP address for the client, the DNS server's IP address, and the gateway router's IP address.
+    
+    \item \emph{Client request}: The client broadcasts chosen configurations.
+    \item \emph{Server acknowledge}: The chosen server confirms the configurations.
+\end{enumerate}
+
+\subsection{DHCP attack}
+The attack on DHCP is exactly like ARP spoofing. Since the DHCP response cannot be verified, any attacker on the network can claim to have a configuration. DHCP attack is also a race condition.
+
+\medskip
+Defense against such low-layer attacks is difficult as there is no root of trust to rely on when first connecting to the network.
+
+\section{WiFi protected accesses (WPA2)}
+WiFi is an implementation of the link layer that wirelessly connects machines in a LAN. WPA2 is a protocol for securing WiFi network communications with cryptography.
+
+\subsection{Pre-shared key (PSK)}
+In WPA2-PSK, a network has one password for all users. Messages sent over the network are encrypted with keys. The WPA handshake follows a procedure:
+\begin{enumerate}
+    \item Client sends an authentication request to the access point.
+    \item Client and access point independently derive the PSK.
+    \item Both exchange random \emph{nonces}.
+    \item Both use the PSK, nonces, and MAC addresses to derive \emph{pairwise transport keys (PTK)}.
+    \item Both exchange MICs (message integrity codes are MACs from the crypto unit) to check that nobody has tampered with the nonces and the PTK was correctly derived.
+    \item Access point encrypts the \emph{group temporal key (GTK)} and sends it to client.
+    \item Client sends an acknowledgement message (ACK) to indicate that it successfully received the GTK.
+\end{enumerate}
+
+\subsection{WPA-PSK attack}
+Attacks can brute-force guess passwords and generate the PSK. The PTK is derived with two nonces and the MAC addresses, all of which are sent unencrypted. The attacker can then derive the PTK and eavesdrop on communications.
+
+\subsection{WPA2-enterprise}
+WPA2-enterprise is a modified protocol that requires each user a unique username and password. If the username and password are correct, the authentication server presents the client and access point with a random \emph{pairwise master key (PMK)} unique to each user.
