@@ -1,1 +1,22 @@
 \chapter{Intro to Networking}
+
+\section{Internet}
+A \emph{network} is a set of connected machines that can communicate with each other on a protocol. The \emph{Internet} is a global network of computer networks. Its primary goal is to move data across locations.
+
+\medskip
+The basic building block of the Internet is a \emph{local area network (LAN)}, i.e. a connected group of local machines. We use a \emph{router} to connect multiple LANs.
+
+\section{Layering}
+There are seven layers of the Internet as defined by the \emph{OSI 7-layer model}. Each layer relies on services from a lower layer and provides services to a higher layer. This design provides abstraction barrier for implementation. 
+
+\medskip
+The OSI model is outdated and we will only focus on five layers: 1) physical $\rightarrow$ 2) link $\rightarrow$ 3) (inter)network $\rightarrow$ 4) transport $\rightarrow$ 7) application.
+
+\section{Addressing}
+The link layer (layer 2) uses 48-bit \emph{MAC addresses} to uniquely identify each machine on the LAN. The first three bytes are assigned to manufacturers, the latter three bytes are device-specific. The \emph{ethernet} is a common layer 2 protocol that most endpoint devices use. 
+
+\medskip
+The network layer (layer 3) uses 32-bit \emph{IP addresses} to uniquely identify each machine globally. \emph{Internet protocol (IP)} is the layer 3 protocol that all devices use to transmit data over the INternet.
+
+\medskip
+Higher layers contain 16-bit \emph{port numbers} to distinguish between different processes on a machine.
