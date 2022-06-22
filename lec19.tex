@@ -1,1 +1,17 @@
 \chapter{TLS}
+
+\section{Transport layer security (TLS)}
+TLS is a protocol that provides an end-to-end encrypted communication channel. However, anonymity and availability are not guaranteed.
+
+\subsection{TLS handshake}
+\begin{enumerate}
+    \item Client sends \emph{ClientHello} with a 256-bit random number $R_B$; server sends \emph{ServerHello} with a 256-bit random number. $R_S$ 
+    \item Server sends its certificate and client learns the server's public key.
+    \item Share a \emph{premaster secret} (RSA or DHE) to ensure that the client is talking to the legitimate server. The server must prove that it owns the private key corresponding to the public key in the certificate through decryption.
+    \item Server and client each derive symmetric keys from the two random values and premaster secret.
+    \item Server and client exchange MACs on all messages of the handshake.
+    \item Message can now be sent securely.
+\end{enumerate}
+
+\subsection{Replay attacks}
+An attacker can record old messages and send them to the server in a reply attack. In TLS, using new randomly generated values $R_B$ and $R_S$ each time ensures that each connection results in a different set of symmetric keys, so reply attacks trying to establish a new connection with the same keys will fail.

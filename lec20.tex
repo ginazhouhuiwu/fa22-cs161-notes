@@ -1,1 +1,38 @@
 \chapter{DNS}
+
+\section{Domain name system (DNS)}
+DNS is an Internet protocol for translating human-readable domain names to IP addresses. \emph{Name servers} are responsible for replying to DNS requests. 
+
+\section{Name server hierarchy}
+When you query a name server, the server can return the queried IP address or direct you to another name server. A DNS query starts at the \emph{root server} and gets directed to smaller, more specific child servers until the final IP address is returned.
+
+\medskip
+Your local computer usually delegates DNS lookups to a \emph{recursive resolver}, which sends queries, processes responses, and maintains an internal cache of records. The \emph{stub resolver} on your computer sends queries to the recursive resolver and lets it do all the work.
+
+\section{DNS message format}
+DNS uses UDP over TCP for speed. The first field of the DNS header is a 16-bit \emph{identification field} used to match requests to responses. The next two fields contain metadata including flags and number of questions asked. The three fields that follow are used in response messages and specify the number of \emph{resource records (RRs)}.
+
+\medskip
+There are two main types of DNS records:
+\begin{enumerate}
+    \item \emph{A type records} map domains (key) to IP addresses (value).
+    \item \emph{NS type records} map zones (key) to domains (value).
+\end{enumerate}
+
+\section{Bailiwick}
+DNS is insecure against malicious name servers. To prevend this, we implement \emph{bailiwick checking}, in which a name server is only allowed to provide records in its zone.
+
+\section{MITM and on-path attackers}
+DNS is not secure against MITM attackers, who can poison the cache through modification of records in DNS response. DNS is also not secure against on-path attackers sending spoofed responses.
+
+\subsection{Cache poisoning attacks}
+In a cache poisoning attack, the attacker returns a malicious record to the client and the victim will cache it. 
+
+\section{Off-path attackers}
+An off-path attacker needs to guess the ID field to spoof a response. Since attackers only get a few tries per week and there are 16 bits, DNS was believed to be secure until Kaminsky.
+
+\subsection{Kaminsky attack}
+If one queries for a nonexistent domain, the legitimate response is an \texttt{NXDOMAIN} status with no other records. In the Kaminsky attack, the attacker repeatedly queries for nonexistent domains and race until they win without having to wait for cached records to expire.
+
+\subsection{UDP source port randomization}
+Source port randomization uses a random 16-bit source port for each query. The name server sends the response packet back to the correct source port of the resolver, so it must include the source port number in the response's destination port field. In turn, an attacker must guess both the 16-bit ID field and the 16-bit source port to forge a response packet.
