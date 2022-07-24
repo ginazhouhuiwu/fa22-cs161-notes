@@ -1,1 +1,74 @@
 \chapter{Denial of Service and Firewalls}
+
+\section{Denial of service (DoS)}
+DoS attack disrupts the \emph{availability} of a service, making it unavailable for legitimate users. A majority of DoS attacks are deliberate attempts to exceed the maximum available bandwidth of a server through exploiting program flaws or resource exhaustion. The attacker only needs to exhaust the \emph{bottleneck}.
+
+\section{Application level DoS}
+Application level DoS attacks target the resources that an application uses and exploits features. Some rely on \emph{asymmetry} wherein a small amount of input from the attacker results in a large amount of consumed resources.
+
+\subsection{Algorithmic complexity attacks}
+In an user-input application, the attacker can intentionally choose inputs that cause the worst case runtime. The most common target are hash tables.
+
+\subsection{Application level DoS defenses}
+\begin{itemize}
+    \item \emph{isolation}: Distinguish attacks from normal behavior and isolate requests such that users' actions do not affect one another.
+    \item \emph{Quotas}: Ensure that users can only acess a certain proportion of resources.
+    \item \emph{Proof of work}: Force users to spend some resources to issue a request and make DoS attacks more expensive.
+\end{itemize}
+
+\section{Network level DoS}
+ Network level DoS overwhelms the victim's \emph{bandwidth} (amount of data that it can upload/download in a given time) or the \emph{packet processing capacity}.
+ 
+ \subsection{Reflected/amplified DoS}
+ Some services send a large response when sent a small request. Thus, attackers can use an amplifier and overwhelm the target.
+ 
+ \subsection{Network level DoS defenses}
+ \begin{itemize}
+     \item \emph{Packet filter}: Discard any packets that are part of the DoS attack through pattern matching or finding where the source IP is the attackert's IP address. However, DoS packets can be spoofed to look like they come from many IP addresses or DDoS actually send such packets from multiple machines.
+     \item \emph{Overprovisioning}: Purchase enough bandwidth to make it harder for attackers to overwhelm the network.
+ \end{itemize}
+ 
+ \section{Distributed denial of service (DDoS)}
+ In a DDoS attack, multiple machines are used to overwhelm the target system. Attackers carry out such attacks with \emph{botnets}, a collection of compromised machines controlled remotely.
+ 
+\section{SYN flooding and SYN cookies}
+In order to initiate a TCP session, the client first sends a SYN packet to the server, which replies with a SYN/ACK packet. The server then awaits for the client to send a concluding ACK packet and discards the session if it receives no replies. 
+
+\medskip
+In a SYN flooding attack, the attacker sends a large number of SYN packets, ignores the replies, and never sends an ACK response. The server's memory fills up with sequence numbers when waiting to match TCP sessions with expected ACK packets. Since the packets never arrive, this wasted memory blocks out other legitimate TCP session requests.
+
+\section{Firewalls}
+Instead of securing individual machines, we want to secure the network as one single entity. The idea of firewalls is adding a single point of access in and out of a network.
+
+\medskip
+We must consider the following to implement a firewall:
+\begin{enumerate}
+    \item What is our security policy (\emph{access control policy})?
+    \item How will we enforce the security policy?
+\end{enumerate}
+
+\subsection{Security policy}
+Network access is controlled by a \emph{policy} (\emph{outbound} for exit, \emph{inbound} for entrance).
+
+\subsection{Other types of firewalls}
+\begin{itemize}
+    \item \emph{Proxy firewall}: Instead of forwarding packets, it forms two TCP connections with the source and the destination.
+    
+    \item \emph{Application proxy firewall}: Certain protocols allow for proxying at the application layer.
+\end{itemize}
+
+\subsection{Allowing firewall traffic}
+\emph{Virtual private network (VPN)} is a set of protocols that allows direct access to an internal network via external connection.
+
+\section{Packet filters}
+The idea behind enforcing security policies is to add choke points in the network. A stateful \emph{packet filter} is a router that checks each packet against the provided access control policy. It either forwards a packet towards its destination or drops the packet.
+
+\subsection{Subverting packet filters}
+\begin{itemize}
+    \item Recall in TCP, messages are split into packets before being sent. An attack against packet filters may split a key word across packets or send them out of order so the firewall won't stop them based on a matching string.
+    
+    \item IP packets have a time-to-live (TTL). Attacker can easily find how many hops away a given server is by sending ping packets. If the destination takes more hops than the firewall, the attacker can send multiple packets with the same sequence number and set TTLs on dummy packets such that they are dropped before reaching the destination.
+    
+    This is an example of \emph{evasion}, constructing network traffic that is parsed by the monitor in one fashion but the end host by another.
+\end{itemize}
+

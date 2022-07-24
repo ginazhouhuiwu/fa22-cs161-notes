@@ -19,6 +19,8 @@ There are two main types of DNS records:
     \item \emph{NS type records} map zones (key) to domains (value).
 \end{enumerate}
 
+A DNS record values contains the \emph{time-to-live (TTL)}, or how long (in seconds) the record can be cached.
+
 \section{Bailiwick}
 DNS is insecure against malicious name servers. To prevend this, we implement \emph{bailiwick checking}, in which a name server is only allowed to provide records in its zone.
 

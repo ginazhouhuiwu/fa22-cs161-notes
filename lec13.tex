@@ -35,4 +35,4 @@ In a CSRF attack, the attacker forces the victim to make an unintended request b
 A defense against CSRF attacks is including a CSRF token, which is a random secret value provided by the server to the user. The user must attach the same value in the request for the server to accept the request.
 
 \subsection{Referer validation}
-In a CSRF attack, the victim usually makes the malicious request from a different website. Thus, another defense against CSRF tokens is to check the Referer field in the HTTP header.n a CSRF attack, the victim usually makes the malicious request from a different website. The Referer header indicates which URL the request was made from.
+In a CSRF attack, the victim usually makes the malicious request from a different website. Thus, another defense against CSRF tokens is to check the Referer field in the HTTP header in a CSRF attack, the victim usually makes the malicious request from a different website. The Referer header indicates which URL the request was made from.
