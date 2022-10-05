@@ -7,7 +7,7 @@ Public-key cryptography alone is not secure against \emph{man-in-the-middle} (MI
 The first time that you use SSH to connect to a new server, your SSH client asks the server for its public key and trusts it with a "leap of faith" (i.e. \emph{trust-on-first-use}).
 
 \section{Certificates}
-A \emph{certificate} is a signed endorsement that contains someone's identity and their public key.
+A \emph{certificate} is a signed endorsement that contains someone's identity and their public key. Certificates solve the problem of sharing public keys in order to begin asymmetric cryptography.
 
 \subsection{Trusted directory service}
 A central trusted directory (TD) maintains an association between the name of each participant and their public key. This service has a number of shortcomings:
@@ -36,4 +36,16 @@ We can add a unique, random \emph{salt} to each user such that brute-force attac
 
 \medskip
 Thus we introduce \emph{slow hash} by adding a large constant factor to the cost of hashing. Though we are not altering the asymptotic difficulty of attacks, this makes brute-force guessing extremely inefficient.
+
+\subsection{Offline and online attacks}
+\begin{itemize}
+    \item \emph{Offline attack}: The attacker performs all the computation themselves.
+    
+    Defense: Use salted, slow hashes instead of unsalted, fast hashes.
+
+   \item \emph{Online attack}: The attacker interacts with the service.
+   
+    Defense: Use timeouts.
+
+\end{itemize}
 

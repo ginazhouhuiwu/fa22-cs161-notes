@@ -6,9 +6,15 @@ In a public-key (asymmetric) cryptosystem, each person has two keys, public and 
 \section{El Gamal encryption}
 El Gamal is a modification of Diffie-Hellman to support encrypting and decrypting messages directly.
 \begin{itemize}
-    \item Key generation: Bob generates private key $b$ and public key $B = g^b \mod p$.
-    \item Encryption: Alice generates random $r$ and computes $C_1 = R = g^r \mod p$. Alice then computes $C_2 = M \times B^r \mod p$ and sends $C_1, C_2$.
-    \item Decryption: Bob computes $C_2 \times C_1^{-b} = M \times B^r \times R^{-b} = M \times g^{br} \times g^{-br} = M \mod p$.
+    \item KeyGen(): Bob generates private key $b$ and public key $B = g^b \mod p$.
+    
+    Intuition: Bob is completing his half of Diffie-Hellman.
+    
+    \item Enc(B, M): Alice generates random $r$ and computes $C_1 = R = g^r \mod p$. Alice then computes $C_2 = M \times B^r \mod p$ and sends $C_1, C_2$.
+    
+    Intuition: Alice is completing her half of Diffie-Hellman, deriving the shared secret, and sending back a multiple of the shared secret.
+    
+    \item Dec(b, $C_1$, $C_2$): Bob computes $C_2 \times C_1^{-b} = M \times B^r \times R^{-b} = M \times g^{br} \times g^{-br} = M \mod p$.
 \end{itemize}
 
 \medskip
@@ -18,14 +24,29 @@ El Gamal is not used in practice as it is not secure and the adversary can tampe
 \section{RSA encryption}
 The main idea is we use the public key to encrypt messages and a corresponding private key to decrypt. An attacker cannot break RSA unless they can factor large primes.
 
-\medskip
+\subsection{RSA problem}
+Given $N$ and $C=M^e \mod{N}$, it is hard to find $M$. Current best solution is to factor $N$, so the RSA problem is as hard as the factoring problem and therefore secure.
+
+\subsection{Issues of RSA}
 RSA is deterministic and not IND-CPA secure.  Sending the same message encrypted with different public keys also leaks information. As a result, we add randomness through a \emph{padding mode}.
+
+\medskip
+\emph{Note}: Determinism does NOT imply IND-CPA security! IND-CPA security means that no information is leaked about the plaintext. Simply adding randomness upon RSA does not guarantee security.
 
 \subsection{Optimal asymmetric encryption padding (OAEP)}
 OAEP is a padding scheme that generates a random symmetric key, uses the key to scramble the message, and encrypts both the scrambled messange and the random key. 
 
+\section{Hybrid encryption}
+Public-key encryption is slow and can only encrypt small messages. In real cryptographic systems, we encrypt data under a randomly generated key $K$ using symmetric encryption and encrypt $K$ using asymmetric encryption. Now we can encrypt large amounts of data quickly using symmetric encryption and still have the security of asymmetric encryption.
+
 \section{Digital signatures}
 Digital signatures are the public-key version of MACs, which provide integrity and authenticity to data. In a digital signature scheme, only the owner can generate a signature using the private key (\emph{signing} key) while everyone can verify it with the public key (\emph{verification} key).
+
+\begin{itemize}
+    \item KeyGen() $\rightarrow$ PK, SK: Generate the verify key PK and signing key SK.
+    \item Sign(SK, M) $\rightarrow$ sig: Sign the message M using signing key SK to produce signature sig.
+    \item Verify(PK, M, sig) $\rightarrow$ {0, 1}: Verify the signature sig on message M using the verify key PK and output 1 if valid and 0 if invalid.
+\end{itemize}
 
 \section{RSA signatures}
 RSA signature is the same as encryption, but we encrypt the hash with the private key.

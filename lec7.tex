@@ -36,6 +36,16 @@ A MAC is a keyed checksum of the message. Any change to the message renders it i
     \item A MAC does not guarantee confidentiality due to determinism, thus information leakage is possible.
 \end{itemize}
 
+\subsection{EU-CPA security}
+\begin{enumerate}
+    \item Mallory may send messages to Alice and receive their tags.
+    \item Eventually, Mallory creates a message-tag pair (M', T').
+    
+    M' cannot be a message that Mallory requested earlier. If T' is a valid tag for M', then Mallory wins. Otherwise, she loses.
+\end{enumerate}
+
+A scheme is EU-CPA secure if for all polynomial time adversaries, the probability of winning is 0 or negligible.
+
 \section{HMAC}
 A Hash Message Authentication Code (HMAC) combines benefits of a MAC and the underlying hash. 
 

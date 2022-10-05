@@ -3,6 +3,14 @@
 \section{Symmetric-key cryptography}
 In the symmetric key setting, we assume that Alice and Bob share the same secret key not known to anyone else. We want to build an encryption scheme that guarantees confidentiality. For modern schemes, all messages are bitstrings.
 
+\medskip
+A symmetric-key encryption scheme has three algorithms:
+\begin{itemize}
+    \item KeyGen() $\rightarrow$ K: Generate a key K
+    \item Enc(K, M) $\rightarrow$ C: Encrypt a plaintext M using the key K to produce ciphertext C
+    \item Dec(K, C) $\rightarrow$ M: Decrypt a ciphertext C using the key K
+\end{itemize}
+
 \section{IND-CPA security}
 First we provide a more formal, rigorous definition of \emph{confidentiality}: the ciphertext $C$ should give the attacker no additional information about the message (plaintext) $M$.
 
@@ -24,6 +32,17 @@ If the scheme is confidential, Eve can correctly guess the message with probabil
 
 \emph{Note}: In step 3, notice that Eve may ask Alice for the encryption of $M_0$ and $M_1$ again. This is by design, as it forces any IND-CPA secure scheme to be non-deterministic.
 
+\subsection{Edge cases}
+\begin{itemize}
+    \item Length: Cryptographic schemes are usually allowed to leak the length of the message.
+    
+    Applications that hide length must pad their own messages to maximum possible length before encrypting.
+    
+    \item Attacker runtime: Some schemes are theoretically vulnerable but secure in any real-world setting due to non-polynomial runtime.
+    
+    \item Negligible advantage: The scheme is secure even if Eve can win with probability $\leq$ 1/2 + $\epsilon$, where $\epsilon$ is negligible.
+\end{itemize}
+
 \section{One-time pad}
 The OTP encryption scheme is described by three procedures:
 \begin{itemize}
@@ -36,7 +55,14 @@ The OTP encryption scheme is described by three procedures:
 For any given plaintext $M$, we can achieve every possible value of a ciphertext $C$ using a unique choise of the shared key $K$. In other words, Eve always sees a uniformly random n-bit string independent of the plaintext.
 
 \subsection{Drawback of OTP}
-OTP is not secure if a key is reused. If the key $K$ is used to encrypt two messages $M_0$ and $M_1$, then Eve can XOR the ciphers and compute $(M_0 \oplus K) \oplus (M_1 \oplus K) = M_0 \oplus M_1$. With this information, she learns where the messages match and can use one to deduce the other.
+\begin{itemize}
+    \item Key generation: OTP is not secure if a key is reused, but generating random keys repeatedly is expensive.
+    
+    If the key $K$ is used to encrypt two messages $M_0$ and $M_1$, then Eve can XOR the ciphers and compute $(M_0 \oplus K) \oplus (M_1 \oplus K) = M_0 \oplus M_1$. With this information, she learns where the messages match and can use one to deduce the other.
+    
+    \item Key distribution: To communicate a n-bit message, we need to securely communicate an n-bit key first. But if we had a way to do this, we could have communicated the message!
+\end{itemize}
+
 
 \section{Block ciphers}
 A block cipher transforms a n-bit input into an n-bit output. It also takes in a k-bit key and has $2^k$ different settings for scrambling. It performs two operations: encryption and decryption.
@@ -67,7 +93,8 @@ Plaintext is broken into n-bit blocks and each block is encoded using the block 
 \end{itemize}
 
 \subsection{Cipher Block Chaining (CBC) mode}
-Sender picks a random n-bit string called the \emph{initial vector (IV)}. This effectively adds non-determinism and creates an IND-CPA secure scheme. Decryption is the inverse function.
+Sender picks a random n-bit string called the \emph{initial vector (IV)}. This effectively adds non-determinism (pushes
+ randomness forward) and creates an IND-CPA secure scheme. Decryption is the inverse function.
 \begin{itemize}
     \item CBC encryption: $C_0 = IV$; $C_i = E_K(C_{i-1} \oplus M_i)$
     \item CBC decryption: $P_i = D_K(C_i) \oplus C_{i-1}$
@@ -79,7 +106,7 @@ Sender picks a random n-bit string called the \emph{initial vector (IV)}. This e
 
 \medskip
 
-CBC mode has sequential encryption, since each cipher block depends on the previous, but \emph{parallel} decryption.
+CBC mode has \emph{sequential} encryption, since each cipher block depends on the previous, but \emph{parallel} decryption.
 
 \medskip
 
