@@ -11,11 +11,13 @@ ARP translates layer 3 IP addresses into layer 2 MAC addresses. The protocol fol
     \item Alice caches the IP address to MAC address mapping.
 \end{enumerate}
 
+If Bob is outside the LAN, the router would respond in step 2 with its MAC address.
+
 \subsection{ARP spoofing}
-Mallory can create a spoofed reply and send it to Alice before Bob, since there is no way to verify that the reply in step 2 is from Bob. ARP spoofing is an example of a \emph{race condition} in which the attacker's response arrives faster than the legitimate response.
+Mallory can create a spoofed reply and send it to Alice before Bob, since there is no way to verify that the reply in step 2 is from Bob. ARP spoofing is an example of a \emph{race condition} in which the attacker's response arrives faster than the legitimate response. The attacker must be in the same LAN.
 
 \subsection{Switches}
-Modern wired Ethernet networks defend against spoofing by using \emph{switches}. Switches maintain a cache of MAC to physical port mappings. If a packet's IP address has a known MAC in the cache, the switch directly sends it; otherwise, it broadcasts the packet to all computers.
+Traditionally, we connect devices in a LAN to a \emph{hub}. Modern wired Ethernet networks defend against spoofing by using \emph{switches}. Switches maintain a cache of MAC to physical port mappings. If a packet's IP address has a known MAC in the cache, the switch directly sends it; otherwise, it broadcasts the packet to all computers.
 
 \section{Dynamic host configuration protocol (DHCP)}
 DHCP sets up configurations for a computer when it first joins a local network. The DHCP handshake follows four steps between the client and the server:
@@ -42,16 +44,22 @@ WiFi is an implementation of the link layer that wirelessly connects machines in
 In WPA2-PSK, a network has one password for all users. Messages sent over the network are encrypted with keys. The WPA handshake follows a procedure:
 \begin{enumerate}
     \item Client sends an authentication request to the access point.
-    \item Client and access point independently derive the PSK.
+    \item Client and access point independently derive the \emph{pre-shared key (PSK)} from Wifi password.
     \item Both exchange random \emph{nonces}.
-    \item Both use the PSK, nonces, and MAC addresses to derive \emph{pairwise transport keys (PTK)}.
+    \item Both use the PSK, nonces, and MAC addresses to independently derive \emph{pairwise transport keys (PTK)}.
     \item Both exchange MICs (message integrity codes are MACs from the crypto unit) to check that nobody has tampered with the nonces and the PTK was correctly derived.
     \item Access point encrypts the \emph{group temporal key (GTK)} and sends it to client.
     \item Client sends an acknowledgement message (ACK) to indicate that it successfully received the GTK.
 \end{enumerate}
 
 \subsection{WPA-PSK attack}
-Attacks can brute-force guess passwords and generate the PSK. The PTK is derived with two nonces and the MAC addresses, all of which are sent unencrypted. The attacker can then derive the PTK and eavesdrop on communications.
+Note that everything except GTK is sent unencrypted in the WPA2 handshake. An on-path attacker can brute-force guess passwords and generate the PSK. If an attacker is part of the WiFi network and eavesdrop on the handshake, they can learn the unencrypted nonces and MAC addresses, then derive the PTK and decrypt all messages. Otherwise, they can still try to brute-force WiFi password.
 
-\subsection{WPA2-enterprise}
-WPA2-enterprise is a modified protocol that requires each user a unique username and password. If the username and password are correct, the authentication server presents the client and access point with a random \emph{pairwise master key (PMK)} unique to each user.
+\subsection{WPA2-Enterprise}
+The vulnerability is that every user uses the same WiFi password to derive private keys. \emph{WPA2-Enterprise} is a modified protocol that requires each user a unique username and password. If the username and password are correct, the authentication server presents the client and access point with a random one-time \emph{pairwise master key (PMK)} unique to each user instead of the PSK to derive the PTK. 
+
+\medskip
+Since the PMK is used once and discarded, no information is retained and WPA2-Enterprise provides forward secrecy.
+
+\medskip
+Note that WPA2-Enterprise is still vulnerable against another authenticated user who executes an ARP or DHCP attack to become a MITM.

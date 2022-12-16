@@ -30,7 +30,8 @@ Exit node can see the message and the recipient. If the user is not using TLS to
 \subsection{Tor weaknesses}
 \begin{itemize}
     \item Timing attacks: A network attacker with a global view of the network can learn that Alice and Bob are talking.
-    \item Collusion: Honest nodes should never share information with other proxies, but if all nodes in the circuit collude, anonymity is broken.
+    
+    \item Collusion: Honest nodes should never share information with other proxies, but if all nodes in the circuit collude, anonymity is broken. If at least one node is not participating in collusion, then anonymity is preserved. Independent hostile nodes do not matter.
 
     Defense: Guard nodes (usually used for entry nodes) that have a high reputation and have exists for a long time.
 

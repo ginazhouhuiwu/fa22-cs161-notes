@@ -18,7 +18,7 @@ To store cryptographic information in DNS messages, we introduce the following r
 A key change is necessary if an attacker compromises a private key. This process is complicated as the name server must inform its parent, who then changes its DS record. 
 
 \medskip
-To change keys easily, each DNSSEC name server generates two public/private key pairs. The \emph{key signing key (KSK)} is only used to sign the zone signing key, and the \emph{zone signing key (ZSK)} is used to sign everything else.
+To change keys easily, each DNSSEC name server generates two public/private key pairs. The \emph{key signing key (KSK)} is only used to sign the zone signing key, and the \emph{zone signing key (ZSK)} is used to sign everything else. Resolvers implicitly trust root's public KSK.
 
 \section{Nonexistent domains}
 Instead of signing individual nonexistent domains, name servers precompute signatures on ranges of nonexistent domains to prove that a domain does not exist beforehand.
