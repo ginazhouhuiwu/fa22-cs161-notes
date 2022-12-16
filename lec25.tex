@@ -1,1 +1,49 @@
-\chapter{Worms, Tor, and Abuse}
+\chapter{Anonymity and tor}
+
+\section{Anonymity}
+\emph{Anonymity} is concealment of one's identity. It is different from confidentiality, which hides the contents of communication.
+
+\subsection{Proxies and VPNs}
+\emph{Proxy} is a third party that relays internet traffic. Alice sends a message and the recipient (Bob) to the proxy, and the proxy forwards the message to Bob. The recipient's name is encrypted so an eavesdropper cannot deduce that Alice is talking to Bob.
+
+\medskip
+VPNs are a virtual connection to an internal network. They also allow users to send packets as through they are coming from the VPN rather than their real network, providing another layer of encryption.
+
+\section{Tor}
+\emph{Tor} (The Onion Router) is a network using multiple proxies to enable anonymous communications. 
+
+\subsection{Tor circuits}
+To communicate with a server, the Tor client forms a \emph{circuit} consisting of 3 relays.
+
+\begin{enumerate}
+    \item Query the directory server for a list of relays (proxies).
+    \item Choose 3 relays to form a Tor circuit.
+    \item Connect to the first relay to form an end-to-end TLS connection.
+    \item Connect to the second relay through the first to form E2E TLS connection.
+    \item Connect to the third relay through the second to form E2E TLS connection.
+    \item Connect to web server.
+\end{enumerate}
+
+\subsection{Tor exit nodes}
+Exit node can see the message and the recipient. If the user is not using TLS to connect to the end host (using HTTP), the exit node can see and modify the traffic.
+
+\subsection{Tor weaknesses}
+\begin{itemize}
+    \item Timing attacks: A network attacker with a global view of the network can learn that Alice and Bob are talking.
+    \item Collusion: Honest nodes should never share information with other proxies, but if all nodes in the circuit collude, anonymity is broken.
+
+    Defense: Guard nodes (usually used for entry nodes) that have a high reputation and have exists for a long time.
+
+    \item Distinguishable traffic: Tor does not hide the fact you are using Tor, anonymity only works in a crowd.
+
+    Defense: Tor bridges, i.e. entry nodes that are not publicly available so attackers cannot tell you are using Tor; pluggable transports that change the appearance of client's traffic to entry node, in turn obfuscating encrypted traffic to make it look  like normal web traffic.
+\end{itemize}
+
+\subsection{Tor drawbacks}
+\begin{itemize}
+    \item Exit nodes are a MTIM attacker.
+    \item Latency is worse as packets need to make more hops across the internet.
+    \item Full anonymity requires usability tradeoffs.
+    \item Arms race between Tor and censors as censors can easily block access to public entry points.
+    \item Illegal services can be hosted.
+\end{itemize}

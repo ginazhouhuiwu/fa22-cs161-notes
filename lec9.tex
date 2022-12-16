@@ -34,7 +34,7 @@ RSA is deterministic and not IND-CPA secure.  Sending the same message encrypted
 \emph{Note}: Determinism does NOT imply IND-CPA security! IND-CPA security means that no information is leaked about the plaintext. Simply adding randomness upon RSA does not guarantee security.
 
 \subsection{Optimal asymmetric encryption padding (OAEP)}
-OAEP is a padding scheme that generates a random symmetric key, uses the key to scramble the message, and encrypts both the scrambled messange and the random key. 
+OAEP is a padding scheme that generates a random symmetric key, uses the key to scramble the message, and encrypts both the scrambled message and the random key. 
 
 \section{Hybrid encryption}
 Public-key encryption is slow and can only encrypt small messages. In real cryptographic systems, we encrypt data under a randomly generated key $K$ using symmetric encryption and encrypt $K$ using asymmetric encryption. Now we can encrypt large amounts of data quickly using symmetric encryption and still have the security of asymmetric encryption.

@@ -1,1 +1,55 @@
-\chapter{Censorship and Malware}
+\chapter{Malware and Worms}
+
+\section{Malware}
+\emph{Malicious software} is attacker code running on victim computers. It propogates through spreading copies. \emph{Self-replicating code} is a code snippet that outputs a copy of itself and can be used to automatically propagate malware.
+
+\section{Viruses}
+\emph{Viruses} are code that requires user action to propagate, usually infecting a computer by altering stored code and spread when the user runs the code.
+
+\subsection{Propagation strategies}
+\begin{itemize}
+    \item Infect existing code that user needs to execute (e.g. opening an app, system startup).
+    \item Modify existing code to include malcode.
+    \item Infect more systems when malcode runs.
+\end{itemize}
+
+\subsection{Detection strategies}
+\emph{Signature-based detection} systems use patterns of known attacks, create a signature on the virus, and capture virus by looking for bytes corresponding to the malcode on other systems. Antivirus software includes a checklist of common viruses.
+
+\subsection{Arms race}
+There is an active arms race between attackers writing viruses and antivirus companies detecting them. Attackers seek out \emph{evasion} strategies by changing the appearance of a virus so each copy looks different, in turn making signature-based detection harder.
+
+\section{Polymorphic code}
+\emph{Polymorphic code}: Each time the virus propagates, it inserts an encrypted copy of the code. The malcode also includes the key and decryptor. The goal is not confidentiality, but rather \emph{obfuscation} such that the virus looks different.
+
+\subsection{Polymorphic code defenses}
+\begin{itemize}
+    \item Add a signature for detecting the decryptor code.
+
+    Issues: Less code to match against produces more false positives; decryptor code could be scattered across memory space.
+
+    \item Run potential malcode in a sandbox.
+
+    Issues: Legitimate programs might perform similar operations.
+\end{itemize}
+
+\section{Metamorphic code}
+\emph{Metamorphic code}: Each time the virus propagates, it generates a semantically different version of the code. It includes a code rewriter to create minor differences in execution between copies.
+
+\subsection{Metamorphic code defenses}
+\begin{itemize}
+    \item Behavior detection: Analyze effects of the instructions rather than syntax.
+    
+    Issues: Viruses can detect that the code is being analyzed and choose different behavior or delay analysis.
+
+    \item Flag unfamiliar code: Treat unseen code as more suspicious.
+\end{itemize}
+
+\section{Worms}
+\emph{Worms} propagate without user action, usually infecting a computer by altering some already-running code.
+
+\subsection{Propagation strategies}
+Worms randomly choose machines by randomly generating 32-bit IP addresses and connect to them (or use a pre-generated "hit-list"). They can spread very quickly via parallelizing the process of propagation and replication (\emph{logistic} growth like infectious diseases). Viruses have the same property but spread more slowly since user action is needed.
+
+\section{Rootkits}
+\emph{Rootkits} are malcode in the operating system that hides its presence. In its presence, users cannot trust the disk or OS.
